@@ -99,4 +99,4 @@ def fingerprint_file():
 
 if __name__ == "__main__":
     CORS(app, origins='*')
-    app.run(port=5001)
+    app.run(host='0.0.0.0', port=5001)

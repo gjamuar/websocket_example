@@ -122,4 +122,4 @@ def handle_my_custom_event(json):
 
 if __name__ == '__main__':
     # CORS(app, origins='*')
-    socketio.run(app, port=5002)
+    socketio.run(app, host='0.0.0.0', port=5002)
