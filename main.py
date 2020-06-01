@@ -1,5 +1,7 @@
+from __future__ import unicode_literals
 import os
 # import urllib.request
+from youtube_dl import DownloadError
 
 from RecognizerService import RecognizerService
 from app import app
@@ -7,6 +9,7 @@ from flask import Flask, request, redirect, jsonify,Response
 from flask_cors import CORS, cross_origin
 from werkzeug.utils import secure_filename
 from config import DatabasePath, mode, FingerprintDirectory, RecordingTime
+import youtube_dl
 
 
 ALLOWED_EXTENSIONS = set(['txt', 'png', 'jpg', 'jpeg', 'gif', 'mp3', 'wav'])
@@ -95,6 +98,30 @@ def fingerprint_file():
         resp = jsonify({'message': 'Allowed file types are txt, pdf, png, jpg, jpeg, gif'})
         resp.status_code = 400
         return resp
+
+@cross_origin()
+@app.route('/youtube/<string:youtube_id>', methods=['GET'])
+def process_youtube(youtube_id):
+    ydl_opts = {
+        'outtmpl': 'uploads/Youtube/%(id)s.%(ext)s',
+        'format': 'bestaudio/best',
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '128',
+        }],
+        'keepvideo': False,
+    }
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        try:
+            ydl.download(['http://www.youtube.com/watch?v='+youtube_id])
+            resp = jsonify('Youtube/'+youtube_id+'.mp3')
+            resp.status_code = 200
+            return resp
+        except DownloadError:
+            resp = jsonify({'message': 'Failed to process youtube id. Please check Id.'})
+            resp.status_code = 400
+            return resp
 
 
 if __name__ == "__main__":

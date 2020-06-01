@@ -22,3 +22,4 @@ websockets
 tornado
 flask-socketio
 eventlet
+youtube_dl
